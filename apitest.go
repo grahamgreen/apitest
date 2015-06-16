@@ -21,7 +21,3 @@ type action struct {
 	name   string
 	thingy string
 }
-
-type test struct {
-	foo string
-}
