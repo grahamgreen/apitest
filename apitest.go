@@ -11,17 +11,17 @@ import (
 )
 
 type donation struct {
-	uuid   uuid.UUID
-	from   uuid.UUID
-	to     uuid.UUID
-	action uuid.UUID
+	Id     uuid.UUID
+	From   uuid.UUID
+	To     uuid.UUID
+	Action uuid.UUID
 }
 
 type account struct {
-	id     uuid.UUID
-	action uuid.UUID
-	name   string
-	stuff  string
+	Id     uuid.UUID
+	Action uuid.UUID
+	Name   string
+	Stuff  string
 }
 
 type action struct {
