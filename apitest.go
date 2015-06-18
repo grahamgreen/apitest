@@ -12,23 +12,23 @@ import (
 )
 
 type donation struct {
-	Id     uuid.UUID `json:"id"`
+	ID     uuid.UUID `json:"id"`
 	From   uuid.UUID `json:"from"`
 	To     uuid.UUID `json:"to"`
 	Action uuid.UUID `json:"action"`
 }
 
 type account struct {
-	Id     uuid.UUID `json:"id"`
+	ID     uuid.UUID `json:"id"`
 	Action uuid.UUID `json:"action"`
 	Name   string    `json:"name"`
 	Stuff  string    `json:"stuff"`
 }
 
 type action struct {
-	id     uuid.UUID `json:"id"`
-	name   string    `json:"name"`
-	thingy string    `json:"thingy"`
+	ID     uuid.UUID `json:"id"`
+	Name   string    `json:"name"`
+	Thingy string    `json:"thingy"`
 }
 
 func main() {
@@ -40,8 +40,20 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
+//Index the primary view
 func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "use this to trigger an acction on an account")
 }
 
-//func AddAccount
+//AddAccount view to add an account
+//TODO how are we going to auth this?
+//TODO will prly want a UI Form for this
+func AddAccount(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "you'll add an account here")
+}
+
+//AddAction view to add an action to an account
+//TODO will prly want a UI Form for this
+func AddAction(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "youll add an action to your account so you can be awesome")
+}
