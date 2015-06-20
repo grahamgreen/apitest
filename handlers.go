@@ -52,7 +52,7 @@ func AddAccount(w http.ResponseWriter, r *http.Request) {
 		defer c.Close()
 		u4, err := uuid.NewV4()
 		goutils.Check(err)
-		account.ID = u4
+		account.ID = *u4
 		c.Do("SET", account.ID.String(), account.ToJSONString())
 		c.Do("SADD", "accounts", account.ID.String())
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -92,21 +92,18 @@ func AddAction(w http.ResponseWriter, r *http.Request) {
 		exists, _ := redis.Bool(c.Do("SISMEMBER", "accounts", action.Account))
 		if !exists {
 			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-			w.WriteHeader(404) // unprocessable entity
-			if err := json.NewEncoder(w).Encode(byte[]("account not found")); err != nil {
-				panic(err)
-			}
+			w.WriteHeader(404) // account not found TODO find better return code
+			w.Write([]byte("account not found"))
+		} else {
+			u4, err := uuid.NewV4()
+			goutils.Check(err)
+			action.ID = *u4
+			c.Do("SET", action.ID.String(), action.ToJSONString())
+			c.Do("SADD", action.Account+":actions", action.ID.String())
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(http.StatusCreated)
+			w.Write([]byte(action.ToJSONString()))
 		}
-
-		u4, err := uuid.NewV4()
-		goutils.Check(err)
-		action.ID = u4
-
-		c.Do("SET", action.ID.String(), action.ToJSONString())
-		c.Do("SADD", action.Account+":actions", action.ID)
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte(action.ToJSONString()))
 	}
 }
 
