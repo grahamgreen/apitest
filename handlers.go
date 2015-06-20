@@ -129,9 +129,30 @@ func Donate(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 		defer c.Close()
-		c.Do("SET", donation.ID, donation.ToJSONString())
-		c.Do("SADD", donation.From+":donations_given", donation.ID)
-		c.Do("SADD", donation.To+":donations_rec", donation.ID)
+
+		//account checks
+		to_exists, _ := redis.Bool(c.Do("SISMEMBER", "accounts", donation.To))
+		from_exists, _ := redis.Bool(c.Do("SISMEMBER", "accounts", donation.From))
+		if !(to_exists && from_exists) {
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(404) // account not found TODO find better return code
+			w.Write([]byte("account not found"))
+			return
+		}
+		valid_action, _ := redis.Bool(c.Do("SISMEMBER", donation.To+":actions", donation.Action))
+		if !valid_action {
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(400) // account not found TODO find better return code
+			w.Write([]byte("action not valid for that account"))
+			return
+		}
+		u4, err := uuid.NewV4()
+		goutils.Check(err)
+		donation.ID = *u4
+
+		c.Do("SET", donation.ID.String(), donation.ToJSONString())
+		c.Do("SADD", donation.From+":donations_given", donation.ID.String())
+		c.Do("SADD", donation.To+":donations_rec", donation.ID.String())
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusCreated)
 		w.Write([]byte(donation.ToJSONString()))
