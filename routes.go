@@ -29,14 +29,14 @@ var routes = Routes{
 	Route{
 		"AddAccount",
 		"POST",
-		"/add/accout/",
+		"/add/account/",
 		AddAccount,
 	},
 	Route{
 		"AddAction",
 		"POST",
 		"/add/action/",
-		AddAccount,
+		AddAction,
 	},
 	Route{
 		"Donate",
