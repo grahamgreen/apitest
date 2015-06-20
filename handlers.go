@@ -10,6 +10,8 @@ import (
 	"net/http"
 
 	"github.com/garyburd/redigo/redis"
+	"github.com/grahamgreen/goutils"
+	"github.com/nu7hatch/gouuid"
 )
 
 //Index the primary view
@@ -48,13 +50,14 @@ func AddAccount(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 		defer c.Close()
-
-		c.Do("SET", account.ID, account.ToJSONString())
-		c.Do("SADD", "accounts", account.ID)
+		u4, err := uuid.NewV4()
+		goutils.Check(err)
+		account.ID = u4
+		c.Do("SET", account.ID.String(), account.ToJSONString())
+		c.Do("SADD", "accounts", account.ID.String())
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusCreated)
 		w.Write([]byte(account.ToJSONString()))
-		//w.Write(js)
 	}
 
 }
@@ -85,7 +88,21 @@ func AddAction(w http.ResponseWriter, r *http.Request) {
 		}
 		defer c.Close()
 
-		c.Do("SET", action.ID, action.ToJSONString())
+		//check that the account exists
+		exists, _ := redis.Bool(c.Do("SISMEMBER", "accounts", action.Account))
+		if !exists {
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(404) // unprocessable entity
+			if err := json.NewEncoder(w).Encode(byte[]("account not found")); err != nil {
+				panic(err)
+			}
+		}
+
+		u4, err := uuid.NewV4()
+		goutils.Check(err)
+		action.ID = u4
+
+		c.Do("SET", action.ID.String(), action.ToJSONString())
 		c.Do("SADD", action.Account+":actions", action.ID)
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusCreated)

@@ -2,15 +2,14 @@ package main
 
 //Copyright 2015 Graham Green
 
-//I'm taking out the UUID for now
-//import "github.com/nu7hatch/gouuid"
+import "github.com/nu7hatch/gouuid"
 
 //Donation an instance of an action on an acctoun
 type Donation struct {
-	ID     string `json:"id"`
-	From   string `json:"from"`
-	To     string `json:"to"`
-	Action string `json:"action"`
+	ID     uuid.UUID `json:"id"`
+	From   string    `json:"from"`
+	To     string    `json:"to"`
+	Action string    `json:"action"`
 }
 
 //ToJSONString return the json string of the struct w/out the id
@@ -21,13 +20,12 @@ func (d Donation) ToJSONString() string {
 
 //Account an account; can send donations by default
 //must have an accociated action to receive actions
+//should id be internal and name be unique across the system?
 type Account struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Stuff string `json:"stuff"`
+	ID    uuid.UUID `json:"id"`
+	Name  string    `json:"name"`
+	Stuff string    `json:"stuff"`
 }
-
-//BADBADBAD NOT DRY
 
 //ToJSONString return the json string of the struct w/out the id
 func (a Account) ToJSONString() string {
@@ -36,10 +34,10 @@ func (a Account) ToJSONString() string {
 
 //Action a action associated w/ an account
 type Action struct {
-	ID      string `json:"id"`
-	Account string `json:"account"`
-	Name    string `json:"name"`
-	Thingy  string `json:"thingy"`
+	ID      uuid.UUID `json:"id"`
+	Account string    `json:"account"`
+	Name    string    `json:"name"`
+	Thingy  string    `json:"thingy"`
 }
 
 //ToJSONString return the json string of the struct w/out the id
