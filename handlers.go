@@ -17,6 +17,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "use this to trigger an acction on an account")
 }
 
+//TODO will need so checking so that the accountIDs in the requests exist
 //TODO all these add object workflows should be refactored to avoid duplication
 
 //AddAccount view to add an account
@@ -49,6 +50,7 @@ func AddAccount(w http.ResponseWriter, r *http.Request) {
 		defer c.Close()
 
 		c.Do("SET", account.ID, account.ToJSONString())
+		c.Do("SADD", "accounts", account.ID)
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusCreated)
 		w.Write([]byte(account.ToJSONString()))
@@ -77,10 +79,16 @@ func AddAction(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 	} else {
-		//js, _ := json.Marshal(action)
+		c, err := redis.Dial("tcp", "192.168.59.103:6379")
+		if err != nil {
+			panic(err)
+		}
+		defer c.Close()
+
+		c.Do("SET", action.ID, action.ToJSONString())
+		c.Do("SADD", action.Account+":actions", action.ID)
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusCreated)
-		//w.Write(js)
 		w.Write([]byte(action.ToJSONString()))
 	}
 }
@@ -102,8 +110,14 @@ func Donate(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 	} else {
-		//we're just sending the object back as a confirmation
-		//js, _ := json.Marshal(donation)
+		c, err := redis.Dial("tcp", "192.168.59.103:6379")
+		if err != nil {
+			panic(err)
+		}
+		defer c.Close()
+		c.Do("SET", donation.ID, donation.ToJSONString())
+		c.Do("SADD", donation.From+":donations_given", donation.ID)
+		c.Do("SADD", donation.To+":donations_rec", donation.ID)
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusCreated)
 		w.Write([]byte(donation.ToJSONString()))

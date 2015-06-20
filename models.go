@@ -7,15 +7,16 @@ package main
 
 //Donation an instance of an action on an acctoun
 type Donation struct {
-	ID   string `json:"id"`
-	From string `json:"from"`
-	To   string `json:"to"`
+	ID     string `json:"id"`
+	From   string `json:"from"`
+	To     string `json:"to"`
+	Action string `json:"action"`
 }
 
 //ToJSONString return the json string of the struct w/out the id
 func (d Donation) ToJSONString() string {
 	//hack alert
-	return `{"from": "` + d.From + `", "to": "` + d.To + `"}`
+	return `{"from": "` + d.From + `", "to": "` + d.To + `", "action": "` + d.Action + `"}`
 }
 
 //Account an account; can send donations by default
@@ -35,9 +36,10 @@ func (a Account) ToJSONString() string {
 
 //Action a action associated w/ an account
 type Action struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	Thingy string `json:"thingy"`
+	ID      string `json:"id"`
+	Account string `json:"account"`
+	Name    string `json:"name"`
+	Thingy  string `json:"thingy"`
 }
 
 //ToJSONString return the json string of the struct w/out the id
