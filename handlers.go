@@ -44,5 +44,10 @@ func Donate(w http.ResponseWriter, r *http.Request) {
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
+	} else {
+		js, _ := json.Marshal(donation)
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusCreated)
+		w.Write(js)
 	}
 }
