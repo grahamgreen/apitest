@@ -131,16 +131,16 @@ func Donate(w http.ResponseWriter, r *http.Request) {
 		defer c.Close()
 
 		//account checks
-		to_exists, _ := redis.Bool(c.Do("SISMEMBER", "accounts", donation.To))
-		from_exists, _ := redis.Bool(c.Do("SISMEMBER", "accounts", donation.From))
-		if !(to_exists && from_exists) {
+		toExists, _ := redis.Bool(c.Do("SISMEMBER", "accounts", donation.To))
+		fromExists, _ := redis.Bool(c.Do("SISMEMBER", "accounts", donation.From))
+		if !(toExists && fromExists) {
 			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 			w.WriteHeader(404) // account not found TODO find better return code
 			w.Write([]byte("account not found"))
 			return
 		}
-		valid_action, _ := redis.Bool(c.Do("SISMEMBER", donation.To+":actions", donation.Action))
-		if !valid_action {
+		validAction, _ := redis.Bool(c.Do("SISMEMBER", donation.To+":actions", donation.Action))
+		if !validAction {
 			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 			w.WriteHeader(400) // account not found TODO find better return code
 			w.Write([]byte("action not valid for that account"))
